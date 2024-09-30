@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <script>
+        let autoHorario = true;
+
+        function actualizarHora() {
+            const fechaHora = new Date();
+            document.getElementById('hora').textContent = fechaHora.toLocaleTimeString('es-CL');
+
+            // Cambio automático del horario según la hora si no ha sido desactivado manualmente
+            if (autoHorario) {
+                const selectHorario = document.getElementById('horario-select');
+                const currentHour = fechaHora.getHours();
+
+                if (currentHour < 13) {
+                    selectHorario.value = 'M';
+                } else {
+                    selectHorario.value = 'T';
+                }
+                cargarPuestos();  // Cargar los puestos cada vez que cambia el horario
+            }
+        }
+
+        setInterval(actualizarHora, 1000); // Actualiza cada segundo
+
+        function cambiarHorario() {
+            autoHorario = false; // Desactivar cambio automático al cambiar manualmente
+            cargarPuestos(); // Cargar puestos según la selección manual
+        }
+
+        function cargarPuestos() {
+            const horario = document.getElementById('horario-select').value;
+            
+            fetch(`/actualizar_puestos?horario=${horario}`)
+                .then(response => response.json())
+                .then(data => {
+                    const empleadosList = document.getElementById('empleados-list-content');
+                    empleadosList.innerHTML = '';
+
+                    data.empleados_mesa.forEach(mesa => {
+                        const mesaTitle = document.createElement('h3');
+                        mesaTitle.textContent = mesa.mesa;
+                        empleadosList.appendChild(mesaTitle);
+
+                        mesa.empleados.forEach(empleado => {
+                            const empleadoItem = document.createElement('li');
+                            empleadoItem.textContent = `${empleado.nombre} ${empleado.apellido}`;
+                            empleadosList.appendChild(empleadoItem);
+                        });
+                    });
+
+                    if (!data.empleados_mesa.length) {
+                        empleadosList.innerHTML = '<li>No hay puestos asignados para este día y horario.</li>';
+                    }
+                });
+        }
+
+        window.onload = function() {
+            cargarPuestos();  // Cargar los datos de los puestos cuando la página se carga
+        };
+    </script>
+</head>
+<body>
+    <h1>Página Principal</h1>
+    <p>Fecha: {{ fecha_hora.date }}</p>
+    <p>Hora: <span id="hora">{{ fecha_hora.time }}</span></p>
+
+    <form id="horario-form" method="post">
+        {% csrf_token %}
+        <label for="horario-select">Posiciones de horario:</label>
+        <select id="horario-select" name="horario" onchange="cambiarHorario()">
+            <option value="M" {% if horario_actual == 'M' %}selected{% endif %}>Mañana</option>
+            <option value="T" {% if horario_actual == 'T' %}selected{% endif %}>Tarde</option>
+            <option value="C" {% if horario_actual == 'C' %}selected{% endif %}>Completo</option>
+        </select>
+    </form>
+
+    <div id="empleados-list" style="overflow-y: scroll; height: 500px; width: 230px; border: 1px solid #000; margin-top: 20px;">
+        <h2>Empleados Asignados:</h2>
+        <ul id="empleados-list-content">
+            <!-- Aquí se cargarán dinámicamente los empleados -->
+        </ul>
+    </div>
+</body>
+</html>
