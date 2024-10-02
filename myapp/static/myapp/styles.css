@@ -1,0 +1,67 @@
+#fecha-hora {
+    position: absolute; /* Si está en absolute, podría estar ocupando más espacio del que imaginas */
+    top: 0;
+    left: 0;
+    width: 250px; /* Ajusta según lo necesites */
+    margin: 0; /* Asegúrate de que no haya márgenes que lo desplacen */
+    padding: 10px; /* Ajusta el espaciado interno */
+}
+
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+#hora {
+    font-size: 20px;
+}
+
+#empleados-list {
+    position: absolute;
+    left: 0;
+    top: 170px;
+    width: 250px;
+    height: 500px;
+    border: 1px solid #000;
+    overflow-y: scroll;
+    margin: 20px;
+}
+
+#mesas-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-left: 270px; /* Espacio a la izquierda para la lista de empleados */
+    margin-top: 20px;
+}
+
+.mesa {
+    position: absolute; /* Mantener el posicionamiento absoluto para controlarlo mejor */
+    width: 300px; /* Hacer el contenedor más ancho */
+    height: auto; /* Ajustar la altura automáticamente según el contenido */
+    border: 1px solid #000; /* Borde alrededor del contenedor */
+    overflow-y: auto; /* Scroll si el contenido excede la altura */
+    margin: 20px; /* Espaciado entre contenedores */
+    background-color: #f9f9f9; /* Fondo claro para el contenedor */
+}
+
+/* Posicionar los contenedores de mesas en un patrón de 2x2 */
+.mesa:nth-child(1) {
+    top: 170px; /* Ajustar la posición hacia arriba */
+    left: 350px; /* Ajustar la posición */
+}
+
+.mesa:nth-child(2) {
+    top: 170px; /* Mantener la misma altura */
+    left: 700px; /* Ajustar la posición */
+}
+
+.mesa:nth-child(3) {
+    top: 400px; /* Bajar a la siguiente fila */
+    left: 350px; /* Ajustar la posición */
+}
+
+.mesa:nth-child(4) {
+    top: 400px; /* Mantener la misma altura */
+    left: 700px; /* Ajustar la posición */
+}

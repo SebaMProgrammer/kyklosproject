@@ -21,6 +21,7 @@ def home(request):
         empleados_mesa_3 = puestos.mesa_3_empleados.all()
         empleados_mesa_4 = puestos.mesa_4_empleados.all()
 
+        # Solo agregar empleados a la lista principal
         for empleado in empleados_mesa_1:
             empleados.append({'nombre': empleado.nombre, 'apellido': empleado.apellido, 'mesa': 'Mesa 1'})
         for empleado in empleados_mesa_2:
@@ -41,25 +42,29 @@ def actualizar_puestos(request):
     fecha_actual = timezone.now().date()
 
     # Filtrar los PuestosDelDia por la fecha actual y el horario seleccionado
-    puestos = PuestosDelDia.objects.filter(fecha=fecha_actual, horario=horario)
+    puesto = PuestosDelDia.objects.filter(fecha=fecha_actual, horario=horario).first()
 
-    empleados_mesa = []
-    for puesto in puestos:
-        empleados_mesa.append({
+    mesas_data = []
+    if puesto:
+        mesas_data.append({
             'mesa': 'Mesa 1',
-            'empleados': list(puesto.mesa_1_empleados.values('nombre', 'apellido'))
+            'empleados': list(puesto.mesa_1_empleados.values('nombre', 'apellido')),
+            'tareas': list(puesto.mesa_1_tareas.values('nombre'))  # Asegúrate de que el modelo incluya tareas
         })
-        empleados_mesa.append({
+        mesas_data.append({
             'mesa': 'Mesa 2',
-            'empleados': list(puesto.mesa_2_empleados.values('nombre', 'apellido'))
+            'empleados': list(puesto.mesa_2_empleados.values('nombre', 'apellido')),
+            'tareas': list(puesto.mesa_2_tareas.values('nombre'))
         })
-        empleados_mesa.append({
+        mesas_data.append({
             'mesa': 'Mesa 3',
-            'empleados': list(puesto.mesa_3_empleados.values('nombre', 'apellido'))
+            'empleados': list(puesto.mesa_3_empleados.values('nombre', 'apellido')),
+            'tareas': list(puesto.mesa_3_tareas.values('nombre'))
         })
-        empleados_mesa.append({
+        mesas_data.append({
             'mesa': 'Mesa 4',
-            'empleados': list(puesto.mesa_4_empleados.values('nombre', 'apellido'))
+            'empleados': list(puesto.mesa_4_empleados.values('nombre', 'apellido')),
+            'tareas': list(puesto.mesa_4_tareas.values('nombre'))
         })
 
-    return JsonResponse({'empleados_mesa': empleados_mesa})
+    return JsonResponse({'mesas': mesas_data})

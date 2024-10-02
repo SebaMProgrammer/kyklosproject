@@ -1,9 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <link rel="stylesheet" href="{% static 'myapp/styles.css' %}">
     <script>
         let autoHorario = true;
 
@@ -11,7 +13,6 @@
             const fechaHora = new Date();
             document.getElementById('hora').textContent = fechaHora.toLocaleTimeString('es-CL');
 
-            // Cambio automático del horario según la hora si no ha sido desactivado manualmente
             if (autoHorario) {
                 const selectHorario = document.getElementById('horario-select');
                 const currentHour = fechaHora.getHours();
@@ -21,15 +22,15 @@
                 } else {
                     selectHorario.value = 'T';
                 }
-                cargarPuestos();  // Cargar los puestos cada vez que cambia el horario
+                cargarPuestos();
             }
         }
 
-        setInterval(actualizarHora, 1000); // Actualiza cada segundo
+        setInterval(actualizarHora, 1000);
 
         function cambiarHorario() {
-            autoHorario = false; // Desactivar cambio automático al cambiar manualmente
-            cargarPuestos(); // Cargar puestos según la selección manual
+            autoHorario = false;
+            cargarPuestos();
         }
 
         function cargarPuestos() {
@@ -38,29 +39,30 @@
             fetch(`/actualizar_puestos?horario=${horario}`)
                 .then(response => response.json())
                 .then(data => {
-                    const empleadosList = document.getElementById('empleados-list-content');
-                    empleadosList.innerHTML = '';
+                    data.mesas.forEach((mesa, index) => {
+                        const empleadosContainer = document.getElementById(`empleados-mesa-${index + 1}`);
+                        const tareasContainer = document.getElementById(`tareas-mesa-${index + 1}`);
 
-                    data.empleados_mesa.forEach(mesa => {
-                        const mesaTitle = document.createElement('h3');
-                        mesaTitle.textContent = mesa.mesa;
-                        empleadosList.appendChild(mesaTitle);
+                        empleadosContainer.innerHTML = '';
+                        tareasContainer.innerHTML = '';
 
                         mesa.empleados.forEach(empleado => {
                             const empleadoItem = document.createElement('li');
                             empleadoItem.textContent = `${empleado.nombre} ${empleado.apellido}`;
-                            empleadosList.appendChild(empleadoItem);
+                            empleadosContainer.appendChild(empleadoItem);
+                        });
+
+                        mesa.tareas.forEach(tarea => {
+                            const tareaItem = document.createElement('li');
+                            tareaItem.textContent = tarea.nombre;
+                            tareasContainer.appendChild(tareaItem);
                         });
                     });
-
-                    if (!data.empleados_mesa.length) {
-                        empleadosList.innerHTML = '<li>No hay puestos asignados para este día y horario.</li>';
-                    }
                 });
         }
 
         window.onload = function() {
-            cargarPuestos();  // Cargar los datos de los puestos cuando la página se carga
+            cargarPuestos();
         };
     </script>
 </head>
@@ -79,11 +81,40 @@
         </select>
     </form>
 
-    <div id="empleados-list" style="overflow-y: scroll; height: 500px; width: 230px; border: 1px solid #000; margin-top: 20px;">
+    <div id="empleados-list">
         <h2>Empleados Asignados:</h2>
         <ul id="empleados-list-content">
-            <!-- Aquí se cargarán dinámicamente los empleados -->
+            {% for empleado in empleados %}
+                <li>{{ empleado.nombre }} {{ empleado.apellido }} - {{ empleado.mesa }}</li>
+            {% endfor %}
         </ul>
+    </div>
+
+    <div id="mesas-container">
+        <div class="mesa" id="mesa-1">
+            <h3>Mesa 1</h3>
+            <ul id="empleados-mesa-1"></ul>
+            <h4>Tareas</h4>
+            <ul id="tareas-mesa-1"></ul>
+        </div>
+        <div class="mesa" id="mesa-2">
+            <h3>Mesa 2</h3>
+            <ul id="empleados-mesa-2"></ul>
+            <h4>Tareas</h4>
+            <ul id="tareas-mesa-2"></ul>
+        </div>
+        <div class="mesa" id="mesa-3">
+            <h3>Mesa 3</h3>
+            <ul id="empleados-mesa-3"></ul>
+            <h4>Tareas</h4>
+            <ul id="tareas-mesa-3"></ul>
+        </div>
+        <div class="mesa" id="mesa-4">
+            <h3>Mesa 4</h3>
+            <ul id="empleados-mesa-4"></ul>
+            <h4>Tareas</h4>
+            <ul id="tareas-mesa-4"></ul>
+        </div>
     </div>
 </body>
 </html>
